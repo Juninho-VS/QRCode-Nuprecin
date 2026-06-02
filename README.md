@@ -94,7 +94,7 @@ Saida esperada em JSON:
   },
   "consumidor": {
     "nome_razao_social": null,
-    "cpf": "70193660660",
+    "cpf": null,
     "uf": null
   },
   "nota": {
