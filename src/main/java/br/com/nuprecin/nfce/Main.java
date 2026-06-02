@@ -6,6 +6,10 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
 public final class Main {
+    /**
+     * Ponto de entrada da aplicacao.
+     * Lê a URL do QR Code, consulta a pagina da NFC-e e imprime o JSON gerado.
+     */
     public static void main(String[] args) throws Exception {
         String url = args.length > 0 ? args[0] : System.getenv("NFC_E_QRCODE_URL");
 

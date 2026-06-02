@@ -14,6 +14,9 @@ public class NfceScraper {
     private final Duration requestTimeout;
     private final String userAgent;
 
+    /**
+     * Cria um scraper com padroes sensatos para redirecionamento, timeout e user agent.
+     */
     public NfceScraper() {
         this(HttpClient.newBuilder()
                         .followRedirects(HttpClient.Redirect.NORMAL)
@@ -24,12 +27,22 @@ public class NfceScraper {
         );
     }
 
+    /**
+     * Cria um scraper com configuracao HTTP personalizada para testes ou usos especiais.
+     */
     public NfceScraper(HttpClient httpClient, Duration requestTimeout, String userAgent) {
         this.httpClient = httpClient;
         this.requestTimeout = requestTimeout;
         this.userAgent = userAgent;
     }
 
+    /**
+     * Baixa a pagina do QR Code e envia o HTML para o parser.
+     *
+     * @param qrcodeUrl URL do QR Code da NFC-e
+     * @return dados da NFC-e ja parseados
+     * @throws NfceScraperException quando a requisicao falha ou a resposta e invalida
+     */
     public Nfce scrape(String qrcodeUrl) {
         try {
             HttpRequest request = HttpRequest.newBuilder()

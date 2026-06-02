@@ -12,9 +12,15 @@ import java.util.regex.Pattern;
 public final class ParsingUtils {
     private static final Pattern FIRST_NUMBER_TOKEN = Pattern.compile("-?\\d[\\d\\.,]*");
 
+    /**
+     * Classe utilitaria; nao sao necessarias instancias.
+     */
     private ParsingUtils() {
     }
 
+    /**
+     * Converte strings em branco para null para manter o modelo limpo.
+     */
     public static String blankToNull(String value) {
         if (value == null) {
             return null;
@@ -23,6 +29,9 @@ public final class ParsingUtils {
         return trimmed.isEmpty() ? null : trimmed;
     }
 
+    /**
+     * Mantem apenas caracteres numericos em uma string.
+     */
     public static String digitsOnly(String value) {
         if (value == null) {
             return null;
@@ -31,6 +40,9 @@ public final class ParsingUtils {
         return digits.isEmpty() ? null : digits;
     }
 
+    /**
+     * Normaliza rotulos removendo acentos, colocando em minusculo e colapsando espacos.
+     */
     public static String normalizeKey(String value) {
         if (value == null) {
             return "";
@@ -42,6 +54,9 @@ public final class ParsingUtils {
         return normalized;
     }
 
+    /**
+     * Extrai o primeiro token com cara de inteiro de um texto arbitrario.
+     */
     public static Integer parseInteger(String text) {
         String token = extractFirstNumberToken(text);
         if (token == null) {
@@ -58,6 +73,9 @@ public final class ParsingUtils {
         }
     }
 
+    /**
+     * Faz o parse de um valor monetario aceitando formato brasileiro ou decimal simples.
+     */
     public static BigDecimal parseMoney(String text) {
         String token = extractFirstNumberToken(text);
         if (token == null) {
@@ -79,6 +97,9 @@ public final class ParsingUtils {
         }
     }
 
+    /**
+     * Faz o parse de uma quantidade usando a mesma tolerancia numerica do valor monetario.
+     */
     public static BigDecimal parseQuantity(String text) {
         String token = extractFirstNumberToken(text);
         if (token == null) {
@@ -100,6 +121,9 @@ public final class ParsingUtils {
         }
     }
 
+    /**
+     * Monta uma URI a partir da URL do QR Code, codificando pipes invalidos quando necessario.
+     */
     public static URI toLenientUri(String url) {
         if (url == null) {
             throw new IllegalArgumentException("URL nula");
@@ -120,6 +144,9 @@ public final class ParsingUtils {
         }
     }
 
+    /**
+     * Extrai a chave de acesso de 44 digitos a partir do parametro `p` da URL do QR Code.
+     */
     public static String extractChaveAcessoFromUrl(String qrcodeUrl) {
         if (qrcodeUrl == null || qrcodeUrl.isBlank()) {
             return null;
@@ -154,6 +181,9 @@ public final class ParsingUtils {
         }
     }
 
+    /**
+     * Recupera o primeiro token numerico do texto para reutilizar o parse numerico.
+     */
     private static String extractFirstNumberToken(String text) {
         if (text == null) {
             return null;

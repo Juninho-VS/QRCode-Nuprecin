@@ -31,9 +31,15 @@ public final class NfceParser {
     private static final Pattern CEP_PLAIN_7 = Pattern.compile("\\b(\\d{7})\\b");
     private static final Pattern MUNICIPIO_UF_AFTER_HYPHEN = Pattern.compile("(?i)^(.*)\\s-\\s*([^,/]+?)\\s*(?:,|/)\\s*([A-Z]{2})\\s*$");
 
+    /**
+     * Classe utilitaria; nao sao necessarias instancias.
+     */
     private NfceParser() {
     }
 
+    /**
+     * Faz o parse do HTML da NFC-e e monta o modelo usado na saida da CLI.
+     */
     public static Nfce parse(String html, String qrcodeUrl) {
         Document doc = Jsoup.parse(html);
 
@@ -64,6 +70,9 @@ public final class NfceParser {
         );
     }
 
+    /**
+     * Agrupa os painéis colapsáveis pelo titulo para que cada secao seja parseada separadamente.
+     */
     private static Map<String, Element> extractPanels(Document doc) {
         Map<String, Element> byTitle = new HashMap<>();
         for (Element panel : doc.select("div.panel.panel-default")) {
@@ -77,6 +86,9 @@ public final class NfceParser {
         return byTitle;
     }
 
+    /**
+     * Faz o parse do bloco do consumidor, tentando primeiro o painel dedicado e depois o documento inteiro.
+     */
     private static Consumidor parseConsumidor(Element panelBody, Document doc) {
         Consumidor fromPanel = parseConsumidorFromScope(panelBody);
         if (hasAnyValue(fromPanel)) {
@@ -88,6 +100,9 @@ public final class NfceParser {
         return hasAnyValue(fromDoc) ? fromDoc : fromPanel;
     }
 
+    /**
+     * Faz o parse dos dados do consumidor a partir de um escopo limitado do HTML.
+     */
     private static Consumidor parseConsumidorFromScope(Element scope) {
         if (scope == null) {
             return new Consumidor(null, null, null);
@@ -114,6 +129,9 @@ public final class NfceParser {
         );
     }
 
+    /**
+     * Verifica se ao menos um campo do consumidor foi encontrado.
+     */
     private static boolean hasAnyValue(Consumidor consumidor) {
         if (consumidor == null) {
             return false;
@@ -121,6 +139,9 @@ public final class NfceParser {
         return consumidor.nomeRazaoSocial() != null || consumidor.cpf() != null || consumidor.uf() != null;
     }
 
+    /**
+     * Extrai a chave de acesso de 44 digitos do painel, da URL ou do texto completo da pagina.
+     */
     private static String parseChaveAcesso(Element panelBody, String qrcodeUrl, Document doc) {
         String fromPanel = null;
         if (panelBody != null) {
@@ -145,6 +166,9 @@ public final class NfceParser {
         return m.find() ? m.group() : null;
     }
 
+    /**
+     * Lê o bloco de informacoes complementares quando ele existir.
+     */
     private static String parseInformacoesComplementares(Element panelBody) {
         if (panelBody == null) {
             return null;
@@ -153,6 +177,9 @@ public final class NfceParser {
         return td == null ? null : ParsingUtils.blankToNull(td.text());
     }
 
+    /**
+     * Faz o parse dos dados do emitente e separa o endereco completo em campos estruturados.
+     */
     private static Estabelecimento parseEmitente(Element informacoesNotaPanel, Document doc) {
         String enderecoCompleto = parseEnderecoEmitente(doc, informacoesNotaPanel);
         EnderecoParts enderecoParts = parseEnderecoCompleto(enderecoCompleto);
@@ -216,6 +243,9 @@ public final class NfceParser {
         );
     }
 
+    /**
+     * Partes intermediarias do endereco extraidas do endereco completo do emitente.
+     */
     private record EnderecoParts(
             String logradouro,
             String numero,
@@ -226,6 +256,9 @@ public final class NfceParser {
     ) {
     }
 
+    /**
+     * Separa uma string de endereco bruto em logradouro, numero, bairro, cidade, UF e CEP.
+     */
     private static EnderecoParts parseEnderecoCompleto(String enderecoCompleto) {
         if (enderecoCompleto == null || enderecoCompleto.isBlank()) {
             return new EnderecoParts(null, null, null, null, null, null);
@@ -307,6 +340,9 @@ public final class NfceParser {
         );
     }
 
+    /**
+     * Normaliza espacos e pontuacao para tornar o parse do endereco mais confiavel.
+     */
     private static String cleanupAddressString(String value) {
         if (value == null) {
             return null;
@@ -327,6 +363,9 @@ public final class NfceParser {
         return s;
     }
 
+    /**
+     * Localiza o endereco do emitente usando os locais mais comuns do HTML.
+     */
     private static String parseEnderecoEmitente(Document doc, Element informacoesNotaPanel) {
         String fromHeader = parseEnderecoEmitenteFromHeaderTable(doc);
         if (fromHeader != null) {
@@ -342,6 +381,9 @@ public final class NfceParser {
         return null;
     }
 
+    /**
+     * Extrai o endereco do emitente da tabela de cabecalho/resumo quando ela existir.
+     */
     private static String parseEnderecoEmitenteFromHeaderTable(Document doc) {
         if (doc == null) {
             return null;
@@ -382,6 +424,9 @@ public final class NfceParser {
         return null;
     }
 
+    /**
+     * Extrai o endereco do emitente de qualquer tabela que pareca um bloco de endereco.
+     */
     private static String parseEnderecoEmitenteFromTables(Element scope) {
         if (scope == null) {
             return null;
@@ -417,6 +462,9 @@ public final class NfceParser {
         return null;
     }
 
+    /**
+     * Faz o parse do bloco geral da nota, incluindo operacao e metadados fiscais.
+     */
     private static NotaInfo parseNotaInfo(Element informacoesNotaPanel) {
         if (informacoesNotaPanel == null) {
             return new NotaInfo(null, null, null, null, null, null, null, null, null, null, null);
@@ -459,6 +507,9 @@ public final class NfceParser {
         );
     }
 
+    /**
+     * Faz o parse da secao de totais e usa os itens como fallback quando necessario.
+     */
     private static Totais parseTotais(Document doc, NotaInfo nota, List<Item> itens) {
         Integer qtd = ParsingUtils.parseInteger(extractSummaryValue(doc, "Qtde total de ítens"));
         if (qtd == null && itens != null && !itens.isEmpty()) {
@@ -487,6 +538,9 @@ public final class NfceParser {
         return new Totais(qtd, valorTotal);
     }
 
+    /**
+     * Localiza o texto associado a um rotulo de resumo dentro de uma linha de elementos em negrito.
+     */
     private static String extractSummaryValue(Document doc, String label) {
         String labelKey = ParsingUtils.normalizeKey(label);
         for (Element strong : doc.select("strong")) {
@@ -505,6 +559,9 @@ public final class NfceParser {
         return null;
     }
 
+    /**
+     * Faz o parse da tabela de itens em uma lista de registros de item.
+     */
     private static List<Item> parseItens(Document doc) {
         Element tbody = doc.getElementById("myTable");
         if (tbody == null) {
@@ -522,6 +579,9 @@ public final class NfceParser {
     }
 
     // Recursivo: processa o índice atual e chama o próximo até acabar.
+    /**
+     * Percorre as linhas de itens recursivamente para transformar cada linha em um item.
+     */
     private static void parseItemRowsRecursively(List<Element> rows, int index, List<Item> out) {
         if (index >= rows.size()) {
             return;
@@ -530,6 +590,9 @@ public final class NfceParser {
         parseItemRowsRecursively(rows, index + 1, out);
     }
 
+    /**
+     * Extrai uma linha de item, incluindo descricao, codigo, quantidade, unidade e valor total.
+     */
     private static Item parseItemRow(Element row, int numero) {
         Elements tds = row.select("> td");
         if (tds.size() < 4) {
@@ -569,6 +632,9 @@ public final class NfceParser {
         return new Item(numero, descricao, ParsingUtils.blankToNull(codigo), quantidade, unidade, valorTotal);
     }
 
+    /**
+     * Encontra uma tabela que contenha todos os cabecalhos esperados, mesmo com pequenas variacoes no HTML.
+     */
     private static Element findTableByRequiredHeaders(Element scope, String... requiredHeaders) {
         if (scope == null) {
             return null;
@@ -607,6 +673,9 @@ public final class NfceParser {
         return null;
     }
 
+    /**
+     * Converte uma tabela de uma linha em um mapa normalizado de cabecalho para valor.
+     */
     private static Map<String, String> extractSingleRowTable(Element table) {
         if (table == null) {
             return Map.of();
@@ -635,6 +704,9 @@ public final class NfceParser {
         return map;
     }
 
+    /**
+     * Tenta varios possiveis cabecalhos e retorna o primeiro valor que bater.
+     */
     private static String pickValue(Map<String, String> normalizedHeaderToValue, String... possibleHeaders) {
         if (normalizedHeaderToValue == null || normalizedHeaderToValue.isEmpty()) {
             return null;
