@@ -186,10 +186,6 @@ Os testes cobrem principalmente:
 - O parser possui fallbacks para lidar com pequenas variacoes de markup.
 - Caso a pagina retorne erro HTTP ou HTML vazio, a aplicacao encerra com excecao especifica.
 
-## Licenca
-
-Adicione aqui a licenca do projeto antes de publicar no GitHub, por exemplo `MIT`, `Apache-2.0` ou `proprietaria`.
-
 ## Contribuicao
 
 Se quiser contribuir, sugiro o seguinte fluxo:
