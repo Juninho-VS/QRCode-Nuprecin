@@ -1,0 +1,12 @@
+br\com\nuprecin\nfce\model\Totais.class
+br\com\nuprecin\nfce\model\NotaInfo.class
+br\com\nuprecin\nfce\NfceScraper.class
+br\com\nuprecin\nfce\model\Item.class
+br\com\nuprecin\nfce\model\Consumidor.class
+br\com\nuprecin\nfce\NfceParser$EnderecoParts.class
+br\com\nuprecin\nfce\NfceScraperException.class
+br\com\nuprecin\nfce\NfceParser.class
+br\com\nuprecin\nfce\model\Estabelecimento.class
+br\com\nuprecin\nfce\model\Nfce.class
+br\com\nuprecin\nfce\Main.class
+br\com\nuprecin\nfce\util\ParsingUtils.class
